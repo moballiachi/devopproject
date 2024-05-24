@@ -15,7 +15,6 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      ENVIRONMENT_NAME: ${{ if github.ref == 'refs/heads/develop' }}Develop${{ else }}Testing${{ endif }}
 
     steps:
       - name: Checkout code
@@ -28,6 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Set ENVIRONMENT_NAME variable
+        run: echo "ENVIRONMENT_NAME=$(if [ '${{ github.ref }}' == 'refs/heads/develop' ]; then echo 'Develop'; else echo 'Testing'; fi)" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: docker build -t env-webapp .
@@ -55,5 +57,3 @@ jobs:
           file: ecs-task-definition.json
           region: ${{ secrets.AWS_REGION }}
           image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          environment: ENVIRONMENT_NAME=${{ env.ENVIRONMENT_NAME }}
-
