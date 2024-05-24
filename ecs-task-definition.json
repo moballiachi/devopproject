@@ -29,4 +29,3 @@
     "memory": "512",
     "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
   }
-  

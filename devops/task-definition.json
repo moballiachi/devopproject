@@ -1,0 +1,24 @@
+{
+  "family": "env-webapp-task-definition",
+  "containerDefinitions": [
+    {
+      "name": "env-webapp-container",
+      "image": "env-webapp:latest",
+      "cpu": 256,
+      "memory": 512,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ],
+      "environment": [
+        {
+          "name": "ENVIRONMENT_NAME",
+          "value": "Develop"
+        }
+      ]
+    }
+  ]
+}

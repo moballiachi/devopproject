@@ -52,6 +52,8 @@ jobs:
         with:
           cluster: env-webapp-cluster
           service: env-webapp-service
-          file: ecs-task-definition.json
-          region: ${{ secrets.AWS_REGION }}
-          image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          task-definition: ${{ secrets.TASK_DEFINITION_NAME }}
+          codedeploy-application: ${{ secrets.CODEDEPLOY_APPLICATION_NAME }}
+          #codedeploy-deployment-group: ${{ secrets.CODEDEPLOY_DEPLOYMENT_GROUP_NAME }}
+          #codedeploy-deployment-description: ${{ secrets.CODEDEPLOY_DEPLOYMENT_DESCRIPTION }}
+          wait-for-minutes: 5
