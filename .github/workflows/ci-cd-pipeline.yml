@@ -61,18 +61,7 @@ jobs:
           
       - name: Create ECS Cluster if not exists
         run: |
-          aws ecs describe-clusters --cluster env-webapp-cluster --region $AWS_REGION || aws ecs create-cluster --cluster-name env-webapp-cluster --region $AWS_REGION
-
-      - name: Create ECS Cluster if not exists and activate
-        run: |
-          clusterStatus=$(aws ecs describe-clusters --cluster env-webapp-cluster --query 'clusters[0].status' --output text --region $AWS_REGION 2>/dev/null || echo "NOTFOUND")
-          if [[ $clusterStatus == "NOTFOUND" ]]; then
-            aws ecs create-cluster --cluster-name env-webapp-cluster --region $AWS_REGION
-            aws ecs wait cluster-active --clusters env-webapp-cluster --region $AWS_REGION
-          elif [[ $clusterStatus == "INACTIVE" ]]; then
-            aws ecs update-cluster-settings --cluster env-webapp-cluster --region $AWS_REGION --no-clusters-auto-update
-            aws ecs wait cluster-active --clusters env-webapp-cluster --region $AWS_REGION
-          fi
+          aws ecs create-cluster --cluster-name env-webapp-cluster --region $AWS_REGION
 
       - name: Build, tag, and push Docker image to ECR
         env:
