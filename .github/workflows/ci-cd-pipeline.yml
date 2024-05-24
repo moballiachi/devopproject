@@ -109,14 +109,7 @@ jobs:
             --task-definition env-webapp-task-definition \
             --desired-count 1 \
             --launch-type FARGATE \
-            --network-configuration 'awsvpcConfiguration={subnets=[subnet-0214f8bffa6c35430,subnet-01b78701b5ffa0245],securityGroups=[sg-01ab2dbfd8900905e],assignPublicIp="ENABLED"}' \
-            --load-balancers '[
-              {
-                "targetGroupArn": "arn:aws:elasticloadbalancing:sa-east-1:095423572062:targetgroup/env-webapp-target-group/a4fc319efdd29843",
-                "containerName": "env-webapp",
-                "containerPort": 8080
-              }
-            ]' \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-0214f8bffa6c35430,subnet-01b78701b5ffa0245],securityGroups=[sg-01ab2dbfd8900905e],assignPublicIp=ENABLED}" \
             --region $AWS_REGION
 
       - name: Create or Update CodeDeploy Application
