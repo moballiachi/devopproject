@@ -187,6 +187,7 @@ jobs:
             echo "Service exists, updating..."
             echo $TASK_DEF_ARN
             echo $AWS_REGION
+            
             aws ecs update-service \
               --cluster env-webapp-cluster \
               --service env-webapp-service \
