@@ -9,10 +9,12 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
     env:
-      AWS_REGION: 'sa-east-1'
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      ENVIRONMENT_NAME: ${{ github.ref_name == 'develop' && 'Develop' || 'Testing' }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
       - name: Checkout code
@@ -26,23 +28,32 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Set ENVIRONMENT_NAME variable
+        run: echo "ENVIRONMENT_NAME=$(if [ '${{ github.ref }}' == 'refs/heads/develop' ]; then echo 'Develop'; else echo 'Testing'; fi)" >> $GITHUB_ENV
+
       - name: Build Docker image
         run: docker build -t env-webapp .
 
       - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          mask-password: true
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
       - name: Build, tag, and push Docker image to ECR
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
           ECR_REPOSITORY: env-webapp
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker tag env-webapp:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          
+      - name: Set Environment Variables
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "ENVIRONMENT_NAME=Develop" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" = "refs/heads/testing" ]; then
+            echo "ENVIRONMENT_NAME=Testing" >> $GITHUB_ENV
+          fi
 
       - name: Register ECS task definition
         run: |
