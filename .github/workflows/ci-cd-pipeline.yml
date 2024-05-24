@@ -64,8 +64,9 @@ jobs:
           aws ecs describe-clusters --clusters env-webapp-cluster --region $AWS_REGION || aws ecs create-cluster --cluster-name env-webapp-cluster --region $AWS_REGION
 
       - name: Register ECS task definition
+        id: register-task-def
         run: |
-          aws ecs register-task-definition \
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
             --family env-webapp-task-definition \
             --network-mode awsvpc \
             --requires-compatibilities FARGATE \
@@ -90,7 +91,11 @@ jobs:
                   }
                 ]
               }
-            ]'
+            ]' \
+            --region $AWS_REGION \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
 
       - name: Create ECS service if it doesn't exist
         run: |
@@ -143,7 +148,7 @@ jobs:
         with:
           cluster: env-webapp-cluster
           service: env-webapp-service
-          task-definition: env-webapp-task-definition
+          task-definition: ${{ env.TASK_DEF_ARN }}
           codedeploy-application: env-webapp-codedeploy-app
           codedeploy-deployment-group: env-webapp-deployment-group
           codedeploy-deployment-description: "Deploying ${{ github.sha }}"
