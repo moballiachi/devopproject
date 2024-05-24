@@ -46,7 +46,15 @@ jobs:
         run: |
           docker tag env-webapp:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
+          
+      - name: Set Environment Variables
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "ENVIRONMENT_NAME=Develop" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" = "refs/heads/testing" ]; then
+            echo "ENVIRONMENT_NAME=Testing" >> $GITHUB_ENV
+          fi
+          
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
@@ -55,3 +63,9 @@ jobs:
           task-definition: ${{ secrets.TASK_DEFINITION_NAME }}
           codedeploy-application: ${{ secrets.CODEDEPLOY_APPLICATION_NAME }}
           wait-for-minutes: 5
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ENVIRONMENT_NAME: ${{ env.ENVIRONMENT_NAME }}
