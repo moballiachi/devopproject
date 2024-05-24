@@ -138,10 +138,19 @@ jobs:
             --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
             --ecs-services clusterName=env-webapp-cluster,serviceName=env-webapp-service \
             --load-balancer-info "targetGroupInfoList=[{name=env-webapp-target-group}]" \
+            --blue-green-deployment-configuration "terminateBlueInstancesOnDeploymentSuccess={action=TERMINATE,terminationWaitTimeInMinutes=5},deploymentReadyOption={actionOnTimeout=CONTINUE_DEPLOYMENT},greenFleetProvisioningOption={action=COPY_AUTO_SCALING_GROUP,greenFleetProvisioningTimeoutInMinutes=60}" \
             --deployment-style "deploymentType=BLUE_GREEN,deploymentOption=WITH_TRAFFIC_CONTROL" \
             --region $AWS_REGION || true
+        shell: /usr/bin/bash -e {0}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ENVIRONMENT_NAME: Develop
+          TASK_DEF_ARN: ${{ TASK_DEF_ARN }}
 
-      - name: Deploy to ECS
+      - name: Updating cluster's service
         run: |
           aws ecs update-service \
             --cluster env-webapp-cluster \
