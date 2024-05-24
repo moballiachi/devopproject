@@ -1,0 +1,12 @@
+{
+  "terminateBlueInstancesOnDeploymentSuccess": {
+    "action": "TERMINATE",
+    "terminationWaitTimeInMinutes": 5
+  },
+  "deploymentReadyOption": {
+    "actionOnTimeout": "CONTINUE_DEPLOYMENT"
+  },
+  "greenFleetProvisioningOption": {
+    "action": "COPY_AUTO_SCALING_GROUP"
+  }
+}
