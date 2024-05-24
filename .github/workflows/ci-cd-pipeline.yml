@@ -84,6 +84,22 @@ jobs:
               }
             ]'
 
+      - name: Create or Update CodeDeploy Application
+        run: |
+          aws deploy create-application --application-name env-webapp-codedeploy-app --compute-platform ECS || true
+
+      - name: Create or Update CodeDeploy Deployment Group
+        run: |
+          aws deploy create-deployment-group \
+            --application-name env-webapp-codedeploy-app \
+            --deployment-group-name env-webapp-deployment-group \
+            --service-role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/CodeDeployServiceRole \
+            --deployment-config-name CodeDeployDefault.ECSAllAtOnce \
+            --ecs-services clusterName=env-webapp-cluster,serviceName=env-webapp-service \
+            --load-balancer-info "targetGroupInfoList=[{name=env-webapp-target-group}]" \
+            --deployment-style "deploymentType=BLUE_GREEN,deploymentOption=WITH_TRAFFIC_CONTROL" \
+            --region $AWS_REGION || true
+
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
