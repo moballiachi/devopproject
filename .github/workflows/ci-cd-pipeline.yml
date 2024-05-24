@@ -37,7 +37,7 @@ jobs:
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-          
+
       - name: Create ECR repository if it doesn't exist
         run: |
           aws ecr describe-repositories --repository-names env-webapp --region $AWS_REGION || aws ecr create-repository --repository-name env-webapp --region $AWS_REGION
@@ -50,7 +50,7 @@ jobs:
         run: |
           docker tag env-webapp:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          
+
       - name: Set Environment Variables
         run: |
           if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
@@ -124,6 +124,18 @@ jobs:
             --ecs-services clusterName=env-webapp-cluster,serviceName=env-webapp-service \
             --load-balancer-info "targetGroupInfoList=[{name=env-webapp-target-group}]" \
             --deployment-style "deploymentType=BLUE_GREEN,deploymentOption=WITH_TRAFFIC_CONTROL" \
+            --blue-green-deployment-configuration '{
+              "terminateBlueInstancesOnDeploymentSuccess": {
+                "action": "TERMINATE",
+                "terminationWaitTimeInMinutes": 5
+              },
+              "deploymentReadyOption": {
+                "actionOnTimeout": "CONTINUE_DEPLOYMENT"
+              },
+              "greenFleetProvisioningOption": {
+                "action": "DISCOVER_EXISTING"
+              }
+            }' \
             --region $AWS_REGION || true
 
       - name: Deploy to ECS
