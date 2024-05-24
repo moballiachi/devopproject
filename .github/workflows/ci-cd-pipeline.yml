@@ -42,6 +42,10 @@ jobs:
         run: |
           aws ecr describe-repositories --repository-names env-webapp --region $AWS_REGION || aws ecr create-repository --repository-name env-webapp --region $AWS_REGION
 
+      - name: Create ECS Cluster if not exists
+        run: |
+          aws ecs describe-clusters --cluster env-webapp-cluster --region $AWS_REGION || aws ecs create-cluster --cluster-name env-webapp-cluster --region $AWS_REGION
+
       - name: Build, tag, and push Docker image to ECR
         env:
           ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
@@ -64,8 +68,9 @@ jobs:
           aws ecs describe-clusters --clusters env-webapp-cluster --region $AWS_REGION || aws ecs create-cluster --cluster-name env-webapp-cluster --region $AWS_REGION
 
       - name: Register ECS task definition
+        id: register-task-def
         run: |
-          aws ecs register-task-definition \
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
             --family env-webapp-task-definition \
             --network-mode awsvpc \
             --requires-compatibilities FARGATE \
@@ -90,7 +95,11 @@ jobs:
                   }
                 ]
               }
-            ]'
+            ]' \
+            --region $AWS_REGION \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
 
       - name: Create ECS service if it doesn't exist
         run: |
@@ -126,6 +135,14 @@ jobs:
             --deployment-style "deploymentType=BLUE_GREEN,deploymentOption=WITH_TRAFFIC_CONTROL" \
             --region $AWS_REGION || true
 
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster env-webapp-cluster \
+            --service env-webapp-service \
+            --task-definition $TASK_DEF_ARN \
+            --region $AWS_REGION
+            
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
