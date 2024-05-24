@@ -177,7 +177,7 @@ jobs:
             --application-name env-webapp-codedeploy-app \
             --deployment-group-name env-webapp-deployment-group \
             --description "Deploying ${{ github.sha }}" \
-            --revision "revisionType=AppSpecContent,appSpecContent={\"content\":\"{\\\"version\\\":\\\"0.0\\\",\\\"Resources\\\":[{\\\"TargetService\\\":{\\\"Type\\\":\\\"AWS::ECS::Service\\\",\\\"Properties\\\":{\\\"TaskDefinition\\\":\\\"$TASK_DEF_ARN\\\",\\\"LoadBalancerInfo\\\":{\\\"ContainerName\\\":\\\"env-webapp\\\",\\\"ContainerPort\\\":8080}}}}]}\"}" \
+            --revision revisionType=AppSpecContent,appSpecContent='{"content":"{\"version\":\"0.0\",\"Resources\":[{\"TargetService\":{\"Type\":\"AWS::ECS::Service\",\"Properties\":{\"TaskDefinition\":\"$TASK_DEF_ARN\",\"LoadBalancerInfo\":{\"ContainerName\":\"env-webapp\",\"ContainerPort\":8080}}}}]}"}' \
             --region $AWS_REGION
         shell: /usr/bin/bash -e {0}
         env:
