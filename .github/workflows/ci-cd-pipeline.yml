@@ -37,6 +37,10 @@ jobs:
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          
+      - name: Create ECR repository if it doesn't exist
+        run: |
+          aws ecr describe-repositories --repository-names env-webapp --region $AWS_REGION || aws ecr create-repository --repository-name env-webapp --region $AWS_REGION
 
       - name: Build, tag, and push Docker image to ECR
         env:
@@ -54,6 +58,10 @@ jobs:
           elif [ "${{ github.ref }}" = "refs/heads/testing" ]; then
             echo "ENVIRONMENT_NAME=Testing" >> $GITHUB_ENV
           fi
+
+      - name: Create ECS cluster if it doesn't exist
+        run: |
+          aws ecs describe-clusters --clusters env-webapp-cluster --region $AWS_REGION || aws ecs create-cluster --cluster-name env-webapp-cluster --region $AWS_REGION
 
       - name: Register ECS task definition
         run: |
@@ -84,6 +92,24 @@ jobs:
               }
             ]'
 
+      - name: Create ECS service if it doesn't exist
+        run: |
+          aws ecs describe-services --cluster env-webapp-cluster --services env-webapp-service --region $AWS_REGION || aws ecs create-service \
+            --cluster env-webapp-cluster \
+            --service-name env-webapp-service \
+            --task-definition env-webapp-task-definition \
+            --desired-count 1 \
+            --launch-type FARGATE \
+            --network-configuration 'awsvpcConfiguration={subnets=[subnet-12345678],securityGroups=[sg-12345678],assignPublicIp="ENABLED"}' \
+            --load-balancers '[
+              {
+                "targetGroupArn": "arn:aws:elasticloadbalancing:sa-east-1:095423572062:targetgroup/env-webapp-target-group/a4fc319efdd29843",
+                "containerName": "env-webapp",
+                "containerPort": 8080
+              }
+            ]' \
+            --region $AWS_REGION
+
       - name: Create or Update CodeDeploy Application
         run: |
           aws deploy create-application --application-name env-webapp-codedeploy-app --compute-platform ECS || true
@@ -105,8 +131,8 @@ jobs:
         with:
           cluster: env-webapp-cluster
           service: env-webapp-service
-          task-definition: env-webapp-task
+          task-definition: env-webapp-task-definition
           codedeploy-application: env-webapp-codedeploy-app
           codedeploy-deployment-group: env-webapp-deployment-group
-          codedeploy-deployment-description: Deploying ${GITHUB_SHA}
+          codedeploy-deployment-description: "Deploying ${{ github.sha }}"
           wait-for-minutes: 5
