@@ -54,6 +54,4 @@ jobs:
           service: env-webapp-service
           task-definition: ${{ secrets.TASK_DEFINITION_NAME }}
           codedeploy-application: ${{ secrets.CODEDEPLOY_APPLICATION_NAME }}
-          codedeploy-deployment-group: ${{ secrets.CODEDEPLOY_DEPLOYMENT_GROUP_NAME }}
-          codedeploy-deployment-description: ${{ secrets.CODEDEPLOY_DEPLOYMENT_DESCRIPTION }}
           wait-for-minutes: 5
