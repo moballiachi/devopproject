@@ -17,6 +17,7 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_SECURITY_GROUP: ${{ secrets.AWS_SECURITY_GROUP }}
       AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
+      AWS_VPC_SUBNET: ${{ secrets.AWS_VPC_SUBNET }}
 
     steps:
       - name: Checkout code
@@ -153,7 +154,7 @@ jobs:
             --cluster env-webapp-cluster \
             --task-definition $TASK_DEF_ARN \
             --launch-type FARGATE \
-            --network-configuration "awsvpcConfiguration={subnets=[${SUBNET_ARRAY[0]},${SUBNET_ARRAY[1]}],securityGroups=[$AWS_SECURITY_GROUP],assignPublicIp=ENABLED}" \
+            --network-configuration "awsvpcConfiguration={subnets=[${AWS_VPC_SUBNET}],securityGroups=[$AWS_SECURITY_GROUP],assignPublicIp=ENABLED}" \
             --region $AWS_REGION
         shell: /usr/bin/bash -e {0}
         env:
