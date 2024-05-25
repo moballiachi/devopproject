@@ -147,6 +147,7 @@ jobs:
             
       - name: Deploy to ECS
         run: |
+          IFS=' ' read -r -a SUBNET_ARRAY <<< "$SUBNET_IDS"
           aws ecs run-task \
             --cluster env-webapp-cluster \
             --task-definition $TASK_DEF_ARN \
