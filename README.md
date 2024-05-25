@@ -69,11 +69,17 @@ Haz clic en el botón "Fork" para crear una copia del repositorio en tu cuenta d
 Antes de ejecutar el pipeline, configura los siguientes secretos en el repositorio de GitHub:
 
 > AWS_ACCESS_KEY_ID
+
 > AWS_ACCOUNT_ID
+
 > AWS_REGION
+
 > AWS_SECRET_ACCESS_KEY
+
 > AWS_SECURITY_GROUP
+
 > AWS_VPC_ID
+
 > AWS_VPC_SUBNET
 
 Sigue estos pasos para configurar cada secreto:
