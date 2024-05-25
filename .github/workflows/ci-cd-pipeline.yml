@@ -141,15 +141,9 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ENVIRONMENT_NAME: Develop
           TASK_DEF_ARN: $TASK_DEF_ARN
-
-      - name: Get Subnet IDs
-        run: |
-          SUBNET_IDS=$(aws ec2 describe-subnets --filters Name=vpc-id,Values=$AWS_VPC_ID --query 'Subnets[*].SubnetId' --output text --region $AWS_REGION)
-          echo "SUBNET_IDS=$SUBNET_IDS" >> $GITHUB_ENV
             
       - name: Deploy to ECS
         run: |
-          IFS=' ' read -r -a SUBNET_ARRAY <<< "$SUBNET_IDS"
           aws ecs run-task \
             --cluster env-webapp-cluster \
             --task-definition $TASK_DEF_ARN \
