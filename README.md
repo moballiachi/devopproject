@@ -84,10 +84,10 @@ Navega a "Secrets" (Secretos) y agrega cada secreto con su respectivo valor.
 
 ### Paso 4: Ejecutar el Pipeline
 
-`$ git fetch --all
-`$ git checkout develop
-`$ git pull origin develop
-`$ git push origin develop
+`$ git fetch --all`
+`$ git checkout develop`
+`$ git pull origin develop`
+`$ git push origin develop`
 
 ### Paso 5: Probar la Dirección IP
 Después de que el pipeline haya finalizado y obtengas la dirección IP pública del Task, prueba la dirección IP en tu navegador web:
