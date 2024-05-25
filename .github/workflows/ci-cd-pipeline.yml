@@ -15,6 +15,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECURITY_GROUP: ${{ secrets.AWS_SECURITY_GROUP }}
 
     steps:
       - name: Checkout code
@@ -138,6 +139,11 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ENVIRONMENT_NAME: Develop
           TASK_DEF_ARN: $TASK_DEF_ARN
+
+      - name: Get Subnet IDs
+        run: |
+          SUBNET_IDS=$(aws ec2 describe-subnets --filters Name=vpc-id,Values=$AWS_VPC_ID --query 'Subnets[*].SubnetId' --output text --region $AWS_REGION)
+          echo "SUBNET_IDS=$SUBNET_IDS" >> $GITHUB_ENV
             
       - name: Deploy to ECS
         run: |
@@ -145,7 +151,7 @@ jobs:
             --cluster env-webapp-cluster \
             --task-definition $TASK_DEF_ARN \
             --launch-type FARGATE \
-            --network-configuration "awsvpcConfiguration={subnets=[subnet-0214f8bffa6c35430,subnet-01b78701b5ffa0245],securityGroups=[sg-01ab2dbfd8900905e],assignPublicIp=ENABLED}" \
+            --network-configuration "awsvpcConfiguration={subnets=[${SUBNET_ARRAY[0]},${SUBNET_ARRAY[1]}],securityGroups=[$AWS_SECURITY_GROUP],assignPublicIp=ENABLED}" \
             --region $AWS_REGION
         shell: /usr/bin/bash -e {0}
         env:
