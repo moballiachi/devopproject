@@ -172,12 +172,11 @@ jobs:
             
       - name: Deploy to ECS
         run: |
-          # Deploying the new task definition using CodeDeploy
-          aws deploy create-deployment \
-            --application-name env-webapp-codedeploy-app \
-            --deployment-group-name env-webapp-deployment-group \
-            --description "Deploying ${{ github.sha }}" \
-            --revision "revisionType=AppSpecContent,appSpecContent={\"content\":\"{\\\"version\\\":\\\"0.0\\\",\\\"Resources\\\":[{\\\"TargetService\\\":{\\\"Type\\\":\\\"AWS::ECS::Service\\\",\\\"Properties\\\":{\\\"TaskDefinition\\\":\\\"$TASK_DEF_ARN\\\",\\\"LoadBalancerInfo\\\":{\\\"ContainerName\\\":\\\"env-webapp\\\",\\\"ContainerPort\\\":8080}}}}]}\"}" \
+          aws ecs run-task \
+            --cluster env-webapp-cluster \
+            --task-definition $TASK_DEF_ARN \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-0214f8bffa6c35430,subnet-01b78701b5ffa0245],securityGroups=[sg-01ab2dbfd8900905e],assignPublicIp=ENABLED}" \
             --region $AWS_REGION
         shell: /usr/bin/bash -e {0}
         env:
