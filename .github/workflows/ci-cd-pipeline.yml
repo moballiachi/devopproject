@@ -115,18 +115,18 @@ jobs:
           echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
 
       - name: Ensure ECS service is active
-          run: |
-            serviceStatus=$(aws ecs describe-services --cluster env-webapp-cluster --services env-webapp-service --query 'services[0].status' --output text --region $AWS_REGION || echo "NOTFOUND")
-            if [[ $serviceStatus == "INACTIVE" ]]; then
-              echo "Activating service..."
-              aws ecs update-service --cluster env-webapp-cluster --service env-webapp-service --desired-count 1 --region $AWS_REGION
-              aws ecs wait services-stable --cluster env-webapp-cluster --services env-webapp-service --region $AWS_REGION
-            elif [[ $serviceStatus == "ACTIVE" ]]; then
-              echo "Service is already active."
-            else
-              echo "Service not found or in an unexpected state: $serviceStatus"
-              exit 1
-            fi
+        run: |
+          serviceStatus=$(aws ecs describe-services --cluster env-webapp-cluster --services env-webapp-service --query 'services[0].status' --output text --region $AWS_REGION || echo "NOTFOUND")
+          if [[ $serviceStatus == "INACTIVE" ]]; then
+            echo "Activating service..."
+            aws ecs update-service --cluster env-webapp-cluster --service env-webapp-service --desired-count 1 --region $AWS_REGION
+            aws ecs wait services-stable --cluster env-webapp-cluster --services env-webapp-service --region $AWS_REGION
+          elif [[ $serviceStatus == "ACTIVE" ]]; then
+            echo "Service is already active."
+          else
+            echo "Service not found or in an unexpected state: $serviceStatus"
+            exit 1
+          fi
       - name: Create or Update ECS service
         run: |
           if aws ecs describe-services --cluster env-webapp-cluster --services env-webapp-service --region $AWS_REGION; then
