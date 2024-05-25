@@ -165,15 +165,6 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ENVIRONMENT_NAME: Develop
           TASK_DEF_ARN: $TASK_DEF_ARN
-
-      - name: Updating cluster's service
-        run: |
-          aws ecs update-service \
-            --cluster env-webapp-cluster \
-            --service env-webapp-service \
-            --task-definition $TASK_DEF_ARN \
-            --network-configuration "awsvpcConfiguration={subnets=[subnet-0214f8bffa6c35430,subnet-01b78701b5ffa0245],securityGroups=[sg-01ab2dbfd8900905e]}" \
-            --region $AWS_REGION
             
       - name: Deploy to ECS
         run: |
