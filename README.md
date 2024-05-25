@@ -58,6 +58,7 @@ Asegúrate de asociar la siguiente política de AWS al usuario que ejecutará el
         }
     ]
 }
+```
 
 ### Paso 2: Probar el Despliegue
 Realiza un fork del repositorio en GitHub.
@@ -67,13 +68,13 @@ Haz clic en el botón "Fork" para crear una copia del repositorio en tu cuenta d
 ### Paso 3: Configurar Secretos en GitHub
 Antes de ejecutar el pipeline, configura los siguientes secretos en el repositorio de GitHub:
 
-AWS_ACCESS_KEY_ID
-AWS_ACCOUNT_ID
-AWS_REGION
-AWS_SECRET_ACCESS_KEY
-AWS_SECURITY_GROUP
-AWS_VPC_ID
-AWS_VPC_SUBNET
+> AWS_ACCESS_KEY_ID
+> AWS_ACCOUNT_ID
+> AWS_REGION
+> AWS_SECRET_ACCESS_KEY
+> AWS_SECURITY_GROUP
+> AWS_VPC_ID
+> AWS_VPC_SUBNET
 Sigue estos pasos para configurar cada secreto:
 
 Ingresa al repositorio en GitHub.
