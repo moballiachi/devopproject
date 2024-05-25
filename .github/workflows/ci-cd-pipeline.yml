@@ -16,6 +16,7 @@ jobs:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_SECURITY_GROUP: ${{ secrets.AWS_SECURITY_GROUP }}
+      AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
 
     steps:
       - name: Checkout code
