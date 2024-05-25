@@ -185,4 +185,4 @@ jobs:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ENVIRONMENT_NAME: Develop
-          TASK_DEF_ARN: arn:aws:ecs:${{ secrets.AWS_ACCOUNT_ID }}:${{ secrets.AWS_REGION }}:task-definition/env-webapp-task-definition:${{ github.sha }}
+          TASK_DEF_ARN: ${{ steps.register-task-def.outputs.TASK_DEF_ARN }}
